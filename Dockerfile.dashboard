@@ -15,7 +15,7 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     DASHBOARD_STORE_ID=STORE_BLR_002 \
     DASHBOARD_FORCE_API=true
 
-COPY requirements-dashboard.txt .
+COPY requirements-api.txt requirements-dashboard.txt ./
 RUN pip install --no-cache-dir -r requirements-dashboard.txt
 
 COPY app/ ./app/
