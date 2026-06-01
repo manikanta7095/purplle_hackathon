@@ -20,6 +20,9 @@ RUN pip install --no-cache-dir -r requirements-api.txt
 
 COPY app/ ./app/
 COPY scripts/ ./scripts/
+COPY seed/ ./seed/
+
+ENV AUTO_SEED_EVENTS=true
 
 RUN mkdir -p /app/data /app/output
 

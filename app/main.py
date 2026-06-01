@@ -13,6 +13,7 @@ from fastapi import FastAPI
 from app import __version__
 from app.anomalies import router as anomalies_router
 from app.database import Database, DEFAULT_DB_PATH
+from app.demo_seed import seed_demo_events_if_empty
 from app.exceptions import register_exception_handlers
 from app.funnel import router as funnel_router
 from app.health import router as health_router
@@ -45,6 +46,7 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     """Initialize resources on startup and release on shutdown."""
     configure_json_logging()
     db = get_app_database()
+    seed_demo_events_if_empty(db)
     logger.info("store intelligence API started db=%s version=%s", db.db_path, __version__)
     yield
     logger.info("store intelligence API shutting down")
