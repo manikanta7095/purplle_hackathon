@@ -1,8 +1,10 @@
 # Streamlit live dashboard — connects to the deployed Store Intelligence API.
 #
 # Render: create a second Web Service, set Dockerfile path to Dockerfile.dashboard
-# Env:   DASHBOARD_API_URL=https://your-api.onrender.com
-#        DASHBOARD_STORE_ID=STORE_BLR_002
+# Env (required on Render):
+#   DASHBOARD_API_URL=https://purplle-hackathon-eo0p.onrender.com
+#   DASHBOARD_STORE_ID=STORE_BLR_002
+#   DASHBOARD_FORCE_API=true
 
 FROM python:3.11-slim
 

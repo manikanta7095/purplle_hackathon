@@ -99,10 +99,16 @@ def _unwrap_envelope(payload: Any) -> Any:
 
 def _api_available() -> bool:
     try:
-        response = requests.get(f"{_api_base()}/health", timeout=1.5)
+        response = requests.get(f"{_api_base()}/health", timeout=8.0)
         return response.status_code == 200
     except requests.RequestException:
         return False
+
+
+def _api_url_misconfigured() -> bool:
+    """True when the dashboard still points at localhost (common Render misconfig)."""
+    base = _api_base().lower().rstrip("/")
+    return base in {"http://127.0.0.1:8000", "http://localhost:8000"}
 
 
 def _fetch_api(path: str) -> Tuple[Optional[Any], Optional[str]]:
@@ -209,7 +215,8 @@ def _fetch_live_data() -> Dict[str, Any]:
         anomalies_raw, anomalies_err = _fetch_api(f"/stores/{store}/anomalies")
         health_raw, health_err = _fetch_api("/health")
 
-        if metrics_err and funnel_err:
+        errors = [e for e in (metrics_err, funnel_err, anomalies_err, health_err) if e]
+        if metrics_err and funnel_err and not st.session_state.get("force_api", False):
             use_api = False
             mode = "demo"
             st.session_state.last_mode = mode
@@ -221,7 +228,7 @@ def _fetch_live_data() -> Dict[str, Any]:
                 "funnel": _unwrap_envelope(funnel_raw) if funnel_raw else {},
                 "anomalies": _unwrap_envelope(anomalies_raw) if anomalies_raw else [],
                 "health": health if isinstance(health, dict) else {},
-                "errors": [e for e in (metrics_err, funnel_err, anomalies_err, health_err) if e],
+                "errors": errors,
             }
 
     _advance_demo_feed()
@@ -523,10 +530,26 @@ def _live_body() -> None:
     errors = data.get("errors") or []
 
     badge = "🟢 API" if mode == "api" else "🟡 Demo"
-    st.caption(f"{badge} · auto-refresh every {REFRESH_SECONDS}s · store `{_store_id()}`")
+    st.caption(
+        f"{badge} · auto-refresh every {REFRESH_SECONDS}s · store `{_store_id()}` · API `{_api_base()}`"
+    )
+
+    if mode == "demo" and _api_url_misconfigured():
+        st.error(
+            "**Dashboard is not connected to your Render API.** "
+            "Set environment variable `DASHBOARD_API_URL` to your backend URL (e.g. "
+            "`https://purplle-hackathon-eo0p.onrender.com`) on the "
+            "**dashboard** Render service, then redeploy. "
+            "Or enter that URL in the sidebar **API base URL** and enable **Require API**."
+        )
+    elif mode == "demo" and not EVENTS_JSONL.exists():
+        st.warning(
+            "**Demo mode** — no local `output/events_all.jsonl` in this container. "
+            "Connect to the deployed API via `DASHBOARD_API_URL` (see sidebar)."
+        )
 
     if errors:
-        st.warning("Partial API errors: " + "; ".join(errors))
+        st.error("API connection failed: " + "; ".join(errors))
 
     _render_kpis(data)
 
