@@ -14,7 +14,6 @@ from typing import Any, Dict, List
 
 from app.database import Database
 from app.ingestion import IngestRequest, ingest_events
-from app.models import StoreEvent
 
 logger = logging.getLogger(__name__)
 
@@ -58,16 +57,20 @@ def seed_demo_events_if_empty(db: Database) -> None:
         logger.warning("demo seed skipped empty file path=%s", DEMO_EVENTS_PATH)
         return
 
-    events = [StoreEvent.model_validate(row) for row in raw]
     accepted = 0
-    for offset in range(0, len(events), BATCH_SIZE):
-        batch = events[offset : offset + BATCH_SIZE]
-        result = ingest_events(db, IngestRequest(events=batch))
-        accepted += result.accepted
+    try:
+        for offset in range(0, len(raw), BATCH_SIZE):
+            batch = raw[offset : offset + BATCH_SIZE]
+            # IngestRequest.events must be dicts (same as POST /events/ingest JSON body).
+            result = ingest_events(db, IngestRequest(events=batch))
+            accepted += result.accepted
+    except Exception:
+        logger.exception("demo seed failed path=%s", DEMO_EVENTS_PATH)
+        return
 
     logger.info(
         "demo seed complete path=%s total=%s accepted=%s",
         DEMO_EVENTS_PATH,
-        len(events),
+        len(raw),
         accepted,
     )

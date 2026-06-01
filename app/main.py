@@ -46,7 +46,10 @@ async def lifespan(_app: FastAPI) -> AsyncIterator[None]:
     """Initialize resources on startup and release on shutdown."""
     configure_json_logging()
     db = get_app_database()
-    seed_demo_events_if_empty(db)
+    try:
+        seed_demo_events_if_empty(db)
+    except Exception:
+        logger.exception("demo seed failed during startup; API will continue without seeded data")
     logger.info("store intelligence API started db=%s version=%s", db.db_path, __version__)
     yield
     logger.info("store intelligence API shutting down")
