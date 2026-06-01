@@ -1,0 +1,65 @@
+# Store Intelligence Platform — Docker Compose
+#
+# Quick start:
+#   docker compose up --build
+#
+# The API uses SQLite by default (persisted under ./data). PostgreSQL is included
+# as an optional service for future migration — see comments on the `api` service.
+
+networks:
+  store-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+
+services:
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./output:/app/output
+      - ./data:/app/data
+    environment:
+      # SQLite database path (default persistence layer)
+      STORE_INTEL_DB: /app/data/store_intelligence.db
+      #
+      # --- PostgreSQL migration (future) ---
+      # The schema in app/database.py is PostgreSQL-compatible. To enable Postgres:
+      #
+      # 1. Implement a connection factory in app/database.py that reads DATABASE_URL
+      #    and uses psycopg2/asyncpg instead of sqlite3.
+      # 2. Uncomment the lines below and add `depends_on: [db]`:
+      #
+      # DATABASE_URL: postgresql://admin:admin@db:5432/store_intelligence
+      #
+      # 3. Run migrations against the Postgres instance on first boot.
+      #
+      # depends_on:
+      #   - db
+    restart: unless-stopped
+    networks:
+      - store-network
+
+  # Optional PostgreSQL 16 — not required for the current SQLite implementation.
+  # Start explicitly with: docker compose up db
+  # Or include in full stack once DATABASE_URL is wired in app/database.py.
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: store_intelligence
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - store-network
+    profiles:
+      - postgres

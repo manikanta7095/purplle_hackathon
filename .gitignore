@@ -1,0 +1,74 @@
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+.eggs/
+dist/
+build/
+pip-wheel-metadata/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# --- Testing & coverage ---
+.pytest_cache/
+.coverage
+.coverage.*
+htmlcov/
+.tox/
+.nox/
+coverage.xml
+*.cover
+.hypothesis/
+
+# --- Environment & secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+
+# --- Pipeline & runtime artifacts (regenerated locally) ---
+output/
+data/
+*.db
+*.sqlite
+*.sqlite3
+
+# YOLO / Ultralytics (downloaded on first run)
+*.pt
+runs/
+weights/
+
+# CCTV / large media (process outside the repo)
+*.mp4
+*.avi
+*.mkv
+*.mov
+*.webm
+*.m4v
+
+# --- Dashboard (Streamlit) ---
+.streamlit/secrets.toml
+
+# --- IDE & OS ---
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# --- Logs & temp ---
+*.log
+logs/
+tmp/
+temp/
+.cache/
