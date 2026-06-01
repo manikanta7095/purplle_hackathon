@@ -18,7 +18,7 @@ from app.models import StoreEvent
 
 logger = logging.getLogger(__name__)
 
-SEED_PATH = Path(__file__).resolve().parent.parent / "seed" / "events_all.jsonl"
+DEMO_EVENTS_PATH = Path(__file__).resolve().parent.parent / "demo" / "events_all.jsonl"
 BATCH_SIZE = 500
 
 
@@ -43,19 +43,19 @@ def _event_count(db: Database) -> int:
 
 
 def seed_demo_events_if_empty(db: Database) -> None:
-    """Ingest seed/events_all.jsonl when AUTO_SEED_EVENTS is set and DB has no events."""
+    """Ingest demo/events_all.jsonl when AUTO_SEED_EVENTS is set and DB has no events."""
     if not _auto_seed_enabled():
         return
     if _event_count(db) > 0:
         logger.info("demo seed skipped database already has events")
         return
-    if not SEED_PATH.is_file():
-        logger.warning("demo seed skipped file missing path=%s", SEED_PATH)
+    if not DEMO_EVENTS_PATH.is_file():
+        logger.warning("demo seed skipped file missing path=%s", DEMO_EVENTS_PATH)
         return
 
-    raw = _load_jsonl(SEED_PATH)
+    raw = _load_jsonl(DEMO_EVENTS_PATH)
     if not raw:
-        logger.warning("demo seed skipped empty file path=%s", SEED_PATH)
+        logger.warning("demo seed skipped empty file path=%s", DEMO_EVENTS_PATH)
         return
 
     events = [StoreEvent.model_validate(row) for row in raw]
@@ -67,7 +67,7 @@ def seed_demo_events_if_empty(db: Database) -> None:
 
     logger.info(
         "demo seed complete path=%s total=%s accepted=%s",
-        SEED_PATH,
+        DEMO_EVENTS_PATH,
         len(events),
         accepted,
     )
