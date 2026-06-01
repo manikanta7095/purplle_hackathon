@@ -1,0 +1,32 @@
+# Git & local env
+.git
+.gitignore
+.env
+.env.*
+
+# Generated / runtime (mount or create at run time)
+output/
+data/
+*.db
+*.pt
+
+# CV pipeline & dashboard (not in API image)
+pipeline/
+dashboard/
+tests/
+docs/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Media & large artifacts
+*.mp4
+*.avi
+*.mkv
+*.mov
+
+# Python caches
+__pycache__/
+*.py[cod]
+.venv/
+venv/
