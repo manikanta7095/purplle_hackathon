@@ -45,6 +45,21 @@ services:
     networks:
       - store-network
 
+  dashboard:
+    build:
+      context: .
+      dockerfile: Dockerfile.dashboard
+    ports:
+      - "8501:8501"
+    environment:
+      DASHBOARD_API_URL: http://api:8000
+      DASHBOARD_STORE_ID: STORE_BLR_002
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - store-network
+
   # Optional PostgreSQL 16 — not required for the current SQLite implementation.
   # Start explicitly with: docker compose up db
   # Or include in full stack once DATABASE_URL is wired in app/database.py.

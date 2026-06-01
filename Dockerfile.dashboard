@@ -1,0 +1,28 @@
+# Streamlit live dashboard — connects to the deployed Store Intelligence API.
+#
+# Render: create a second Web Service, set Dockerfile path to Dockerfile.dashboard
+# Env:   DASHBOARD_API_URL=https://your-api.onrender.com
+#        DASHBOARD_STORE_ID=STORE_BLR_002
+
+FROM python:3.11-slim
+
+WORKDIR /app
+
+ENV PYTHONDONTWRITEBYTECODE=1 \
+    PYTHONUNBUFFERED=1 \
+    PYTHONPATH=/app \
+    PORT=8501 \
+    DASHBOARD_STORE_ID=STORE_BLR_002 \
+    DASHBOARD_FORCE_API=true
+
+COPY requirements-dashboard.txt .
+RUN pip install --no-cache-dir -r requirements-dashboard.txt
+
+COPY app/ ./app/
+COPY dashboard/ ./dashboard/
+COPY .streamlit/ ./.streamlit/
+
+EXPOSE 8501
+
+# Render sets PORT; Streamlit must listen on 0.0.0.0
+CMD ["sh", "-c", "streamlit run dashboard/live_dashboard.py --server.port=${PORT} --server.address=0.0.0.0"]

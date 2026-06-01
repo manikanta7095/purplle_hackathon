@@ -10,9 +10,8 @@ data/
 *.db
 *.pt
 
-# CV pipeline & dashboard (not in API image)
+# CV pipeline (not in API image; dashboard/ needed for Dockerfile.dashboard)
 pipeline/
-dashboard/
 tests/
 docs/
 .pytest_cache/

@@ -1,0 +1,29 @@
+# Render Blueprint — deploy API + dashboard as two Web Services.
+# Dashboard: set DASHBOARD_API_URL to your API service public URL after first deploy.
+
+services:
+  - type: web
+    name: store-intelligence-api
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: AUTO_SEED_EVENTS
+        value: "true"
+      - key: STORE_INTEL_DB
+        value: /app/data/store_intelligence.db
+
+  - type: web
+    name: store-intelligence-dashboard
+    runtime: docker
+    dockerfilePath: ./Dockerfile.dashboard
+    dockerContext: .
+    plan: free
+    envVars:
+      - key: DASHBOARD_STORE_ID
+        value: STORE_BLR_002
+      - key: DASHBOARD_API_URL
+        sync: false
+        # Set manually to https://store-intelligence-api.onrender.com (your API URL)

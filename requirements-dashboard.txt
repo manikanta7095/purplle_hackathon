@@ -1,0 +1,6 @@
+# Streamlit dashboard (Render / Docker). Reuses API package deps for shared app/ logic.
+-r requirements-api.txt
+streamlit>=1.37.0
+plotly>=5.18.0
+pandas>=2.0.0
+requests>=2.31.0

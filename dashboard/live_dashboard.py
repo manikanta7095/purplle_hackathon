@@ -38,7 +38,7 @@ from app.models import AnomalySeverity, AnomalyType  # noqa: E402
 REFRESH_SECONDS = 2
 HISTORY_LIMIT = 120
 DEFAULT_API_URL = os.getenv("DASHBOARD_API_URL", "http://127.0.0.1:8000")
-DEFAULT_STORE_ID = os.getenv("DASHBOARD_STORE_ID", "default")
+DEFAULT_STORE_ID = os.getenv("DASHBOARD_STORE_ID", "STORE_BLR_002")
 EVENTS_JSONL = PROJECT_ROOT / "output" / "events_all.jsonl"
 DEMO_BATCH_SIZE = 8
 
@@ -63,7 +63,13 @@ ANOMALY_LABELS = {
 
 
 def _init_session_state() -> None:
+    force_api = os.getenv("DASHBOARD_FORCE_API", "").strip().lower() in ("1", "true", "yes")
+    if os.getenv("DASHBOARD_API_URL", "").strip():
+        force_api = True
     defaults = {
+        "api_url": DEFAULT_API_URL,
+        "store_id": DEFAULT_STORE_ID,
+        "force_api": force_api,
         "visitor_history": [],
         "queue_history": [],
         "demo_db": None,
